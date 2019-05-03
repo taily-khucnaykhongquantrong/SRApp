@@ -23,7 +23,7 @@ def modcrop(img_in, scale):
     return img
 
 
-def drawtext(imgPath: str, *args):
+def drawtext(imgPath: str, scoreList):
     """
     Open and draw score on the image.
 
@@ -42,8 +42,8 @@ def drawtext(imgPath: str, *args):
     img = Image.open(imgPath)
     drawnImg = ImageDraw.Draw(img)
 
-    for i, (metric_name, score) in enumerate(args):
-        drawnImg.text((10, 10 * i), metric_name + ': ' + score, fill=(255, 255, 0))
+    for i, (metric_name, score) in enumerate(scoreList):
+        drawnImg.text((10, 10 * i), metric_name + ": " + str(score), fill=(255, 87, 34))
 
     return img
 

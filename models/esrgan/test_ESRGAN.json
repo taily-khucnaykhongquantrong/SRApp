@@ -1,0 +1,41 @@
+{
+  "name": "RRDB_ESRGAN_x4"
+  , "suffix": "_RRDB_ESRGAN_x4"
+  , "model": "srragan"
+  , "scale": 4
+  , "gpu_ids": null
+
+  , "datasets": {
+    "test_1": { // the 1st test dataset
+      "name": "demo"
+      , "mode": "LRHR"
+      , "dataroot_HR": "../SRApp/img/hr"
+      , "dataroot_LR": "../SRApp/img/lr"
+    }
+    // , "test_2": { // the 2nd test dataset
+    //   "name": "set14"
+    //   , "mode": "LRHR"
+    //   , "dataroot_HR": "/mnt/SSD/xtwang/BasicSR_datasets/val_set14/Set14"
+    //   , "dataroot_LR": "/mnt/SSD/xtwang/BasicSR_datasets/val_set14/Set14_bicLRx4"
+    // }
+  }
+
+  , "path": {
+    "root": "./"
+    // , "pretrain_model_G": "E:/Studying stuffs/LVTN/2018/-ESRGAN/experiments/pretrained_models/50000_G.pth"
+    , "pretrain_model_G": "experiments/RRDB_PSNR_x4/models/RRDB_PSNR_x4.pth"
+  }
+
+  , "network_G": {
+    "which_model_G": "RRDB_net" // RRDB_net | sr_resnet
+    , "norm_type": null
+    , "mode": "CNA"
+    , "nf": 64
+    , "nb": 23
+    , "in_nc": 3
+    , "out_nc": 3
+
+    , "gc": 32
+    , "group": 1
+  }
+}

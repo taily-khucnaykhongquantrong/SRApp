@@ -322,6 +322,7 @@ def imresize(img, scale, antialiasing=True):
     out_C, out_H, out_W = in_C, math.ceil(in_H * scale), math.ceil(in_W * scale)
     kernel_width = 4
     kernel = "cubic"
+    out_C
 
     # Return the desired dimension order for performing the resize.  The
     # strategy is to perform the resize first along the dimension with the
@@ -400,6 +401,7 @@ def imresize_np(img, scale, antialiasing=True):
     out_C, out_H, out_W = in_C, math.ceil(in_H * scale), math.ceil(in_W * scale)
     kernel_width = 4
     kernel = "cubic"
+    out_C
 
     # Return the desired dimension order for performing the resize.  The
     # strategy is to perform the resize first along the dimension with the

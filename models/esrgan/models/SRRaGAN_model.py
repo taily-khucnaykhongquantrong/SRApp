@@ -1,4 +1,4 @@
-import os
+# import os
 import logging
 from collections import OrderedDict
 
@@ -6,9 +6,9 @@ import torch
 import torch.nn as nn
 from torch.optim import lr_scheduler
 
-import models.networks as networks
+from models.esrgan.models import networks
 from .base_model import BaseModel
-from models.modules.loss import GANLoss, GradientPenaltyLoss
+from models.esrgan.models.modules.loss import GANLoss, GradientPenaltyLoss
 
 logger = logging.getLogger("base")
 

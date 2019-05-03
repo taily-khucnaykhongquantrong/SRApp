@@ -4,8 +4,8 @@ import torch
 import torch.nn as nn
 from torch.nn import init
 
-import models.modules.architecture as arch
-import models.modules.sft_arch as sft_arch
+from models.esrgan.models.modules import architecture as arch
+from models.esrgan.models.modules import sft_arch
 
 logger = logging.getLogger("base")
 ####################

@@ -4,7 +4,7 @@ import numpy as np
 import cv2
 import torch
 import torch.utils.data as data
-import models.esrgan.data.util as util
+from models.esrgan.data import util
 
 
 class LRHRDataset(data.Dataset):

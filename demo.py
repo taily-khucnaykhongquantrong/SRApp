@@ -39,6 +39,8 @@ for (sr, hr) in zip(srList, hrList):
         img = drawtext(sr, scoreList)
         img.save(SR_WITH_SCORE_DIRECTORY + fileNameHr)
 
+print(str(datetime.now()))
+
 subprocess.call(
     [
         "Images2GIF/gifski.exe",

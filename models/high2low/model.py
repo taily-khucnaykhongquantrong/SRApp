@@ -1,4 +1,5 @@
 import torch.nn as nn
+
 # import torch
 # import torch.nn.functional as F
 
@@ -8,6 +9,24 @@ def conv3x3(in_planes, out_planes, stride=1):
     return nn.Conv2d(
         in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=False
     )
+
+
+class Interpolate(nn.Module):
+    def __init__(self, scale_factor, mode, align_corners):
+        super(Interpolate, self).__init__()
+        self.interp = nn.functional.interpolate
+        self.scale_factor = scale_factor
+        self.mode = mode
+        self.align_corners = align_corners
+
+    def forward(self, x):
+        x = self.interp(
+            x,
+            scale_factor=self.scale_factor,
+            mode=self.mode,
+            align_corners=self.align_corners,
+        )
+        return x
 
 
 class BasicBlock(nn.Module):
@@ -125,7 +144,7 @@ class GEN_DEEP(nn.Module):
                 # layers.append(MyBlock(curr_inp_resu[j], nunits))
 
             self.layers_set_up[ru].append(
-                nn.Upsample(scale_factor=2, mode="bilinear", align_corners=True)
+                Interpolate(scale_factor=2, mode="bilinear", align_corners=True)
             )
 
             self.layers_set_up[ru].append(nn.BatchNorm2d(nunits))

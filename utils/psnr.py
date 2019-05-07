@@ -5,7 +5,7 @@ import imageio
 from utils.util import modcrop
 
 
-def psnr(imgPath1, imgPath2):
+def psnr(imgPath1: str, imgPath2: str):
     img1 = imageio.imread(imgPath1)
     img2 = imageio.imread(imgPath2)
 

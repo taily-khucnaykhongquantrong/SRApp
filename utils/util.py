@@ -7,6 +7,17 @@ IMG_EXTENSION = ["jpg", "png", "jpeg"]
 def modcrop(img_in, scale):
     """
     Make sure that the SR and HR have the same (H, W, C)
+    Parameters
+    ----------
+    img_in: numpy array or image(H, W, C) or image(H, W).
+            Image to get cropped.\n
+    scale:  int.
+            Scale factor.
+
+    Returns
+    -------
+    img: ndarray.
+         Return image as numpy array.
     """
     # img_in: Numpy, HWC or HW
     img = np.copy(img_in)

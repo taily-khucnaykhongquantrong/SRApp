@@ -2,7 +2,7 @@ function [ feature ] = global_gsm( img )
 
 
 %   Fix error buildSFpyr not found line 22
-addpath('utils/ma_score/external/matlabPyrTools','utils/ma_score/external/randomforest-matlab/RF_Reg_C');
+addpath('external\matlabPyrTools','external\randomforest-matlab\RF_Reg_C');
 
 %   Blobal_GSM used to extract global statiscs information of SR image 
 

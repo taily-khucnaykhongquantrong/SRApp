@@ -29,7 +29,7 @@ def ssim(img1, img2):
     return ssim_map.mean()
 
 
-def calculate_ssim(imgPath1, imgPath2):
+def calculate_ssim(imgPath1: str, imgPath2: str):
     """calculate SSIM
     the same outputs as MATLAB's
     img1, img2: [0, 255]

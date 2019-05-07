@@ -12,17 +12,19 @@ class InceptionV3(nn.Module):
 
     # Maps feature dimensionality to their output blocks indices
     BLOCK_INDEX_BY_DIM = {
-        64: 0,   # First max pooling features
+        64: 0,  # First max pooling features
         192: 1,  # Second max pooling featurs
         768: 2,  # Pre-aux classifier features
-        2048: 3  # Final average pooling features
+        2048: 3,  # Final average pooling features
     }
 
-    def __init__(self,
-                 output_blocks=[DEFAULT_BLOCK_INDEX],
-                 resize_input=True,
-                 normalize_input=True,
-                 requires_grad=False):
+    def __init__(
+        self,
+        output_blocks=[DEFAULT_BLOCK_INDEX],
+        resize_input=True,
+        normalize_input=True,
+        requires_grad=False,
+    ):
         """Build pretrained InceptionV3
 
         Parameters
@@ -39,8 +41,8 @@ class InceptionV3(nn.Module):
             layers is fully convolutional, it should be able to handle inputs
             of arbitrary size, so resizing might not be strictly needed
         normalize_input : bool
-            If true, normalizes the input to the statistics the pretrained
-            Inception network expects
+            If true, scales the input from range (0, 1) to the range the
+            pretrained Inception network expects, namely (-1, 1)
         requires_grad : bool
             If true, parameters of the model require gradient. Possibly useful
             for finetuning the network
@@ -52,21 +54,18 @@ class InceptionV3(nn.Module):
         self.output_blocks = sorted(output_blocks)
         self.last_needed_block = max(output_blocks)
 
-        assert self.last_needed_block <= 3, \
-            'Last possible output block index is 3'
+        assert self.last_needed_block <= 3, "Last possible output block index is 3"
 
         self.blocks = nn.ModuleList()
 
         inception = models.inception_v3(pretrained=True)
-        #print(inception)
-        #exit()
 
         # Block 0: input to maxpool1
         block0 = [
             inception.Conv2d_1a_3x3,
             inception.Conv2d_2a_3x3,
             inception.Conv2d_2b_3x3,
-            nn.MaxPool2d(kernel_size=3, stride=2)
+            nn.MaxPool2d(kernel_size=3, stride=2),
         ]
         self.blocks.append(nn.Sequential(*block0))
 
@@ -75,7 +74,7 @@ class InceptionV3(nn.Module):
             block1 = [
                 inception.Conv2d_3b_1x1,
                 inception.Conv2d_4a_3x3,
-                nn.MaxPool2d(kernel_size=3, stride=2)
+                nn.MaxPool2d(kernel_size=3, stride=2),
             ]
             self.blocks.append(nn.Sequential(*block1))
 
@@ -99,7 +98,7 @@ class InceptionV3(nn.Module):
                 inception.Mixed_7a,
                 inception.Mixed_7b,
                 inception.Mixed_7c,
-                nn.AdaptiveAvgPool2d(output_size=(1, 1))
+                nn.AdaptiveAvgPool2d(output_size=(1, 1)),
             ]
             self.blocks.append(nn.Sequential(*block3))
 
@@ -112,25 +111,22 @@ class InceptionV3(nn.Module):
         Parameters
         ----------
         inp : torch.autograd.Variable
-            Input tensor of shape Bx3xHxW. Values are expected to be in 
+            Input tensor of shape Bx3xHxW. Values are expected to be in
             range (0, 1)
 
         Returns
         -------
-        List of torch.autograd.Variable, corresponding to the selected output 
+        List of torch.autograd.Variable, corresponding to the selected output
         block, sorted ascending by index
         """
         outp = []
         x = inp
 
         if self.resize_input:
-            x = F.upsample(x, size=(299, 299), mode='bilinear')
+            x = F.interpolate(x, size=(299, 299), mode="bilinear", align_corners=False)
 
         if self.normalize_input:
-            x = x.clone()
-            x[:, 0] = x[:, 0] * (0.229 / 0.5) + (0.485 - 0.5) / 0.5
-            x[:, 1] = x[:, 1] * (0.224 / 0.5) + (0.456 - 0.5) / 0.5
-            x[:, 2] = x[:, 2] * (0.225 / 0.5) + (0.406 - 0.5) / 0.5
+            x = 2 * x - 1  # Scale from range (0, 1) to range (-1, 1)
 
         for idx, block in enumerate(self.blocks):
             x = block(x)
@@ -140,6 +136,4 @@ class InceptionV3(nn.Module):
             if idx == self.last_needed_block:
                 break
 
-        #print(x.size())
-        #exit()
         return outp

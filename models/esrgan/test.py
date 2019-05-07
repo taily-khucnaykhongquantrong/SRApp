@@ -20,7 +20,7 @@ from models.esrgan.models import create_model
 
 def test():
     # options
-    jsonPath = 'models/esrgan/options/test_ESRGAN.json'
+    jsonPath = "models/esrgan/options/test_ESRGAN.json"
     opt = option.parse(jsonPath, is_train=False)
     util.mkdirs(
         (path for key, path in opt["path"].items() if not key == "pretrain_model_G")
@@ -54,7 +54,7 @@ def test():
         # dataset_dir = os.path.join(opt["path"]["results_root"], test_set_name)
 
         # where to save sr img
-        dataset_dir = 'img/sr/ESRGAN'
+        dataset_dir = "img/sr/ESRGAN"
         util.mkdir(dataset_dir)
 
         for data in test_loader:
@@ -72,9 +72,12 @@ def test():
             # save images
             suffix = opt["suffix"]
             if suffix:
-                save_img_path = os.path.join(dataset_dir, img_name + suffix + ".png")
+                save_img_path = os.path.join(
+                    dataset_dir,
+                    img_name + suffix + os.path.splitext(os.path.basename(img_path))[1],
+                )
             else:
-                save_img_path = os.path.join(dataset_dir, img_name + ".png")
+                save_img_path = os.path.join(dataset_dir, os.path.basename(img_path))
             util.save_img(sr_img, save_img_path)
 
             logger.info(img_name)

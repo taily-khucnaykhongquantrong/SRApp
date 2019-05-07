@@ -24,7 +24,7 @@ class faces_super(data.Dataset):
             for filename in list_name:  # png
                 self.img_list.append(filename)
         else:
-            img_path = "img/lr/*"
+            img_path = dataPath
             list_name = sorted(glob(img_path))
 
             for filename in list_name:

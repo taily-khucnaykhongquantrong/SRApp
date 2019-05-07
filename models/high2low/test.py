@@ -22,7 +22,7 @@ def to_var(data):
     return input, batchsize
 
 
-def test():
+def test(data_name="img_align_celeba_png_set_1"):
     torch.manual_seed(1)
     np.random.seed(0)
     torch.cuda.manual_seed(1)
@@ -35,8 +35,7 @@ def test():
     # cudnn.benchmark = True
 
     print("========================LOAD DATA============================")
-    data_name = "img_align_celeba_png_set_1"
-    test_loader = get_loader(data_name, opt.batchsize)
+    test_loader = get_loader(data_name, opt.batchsize, dataPath="img/lr/*")
     net_G_low2high = GEN_DEEP(ngpu=opt.nGPU)
     # Remove this comment if using GPU with CUDA
     # net_G_low2high = net_G_low2high.cuda()
@@ -44,12 +43,10 @@ def test():
     net_G_low2high.load_state_dict(a)
     net_G_low2high = net_G_low2high.eval()
 
-    test_file = "img/sr/high2low/"
+    test_file = "img/sr/high2low/" + data_name + "/"
 
     if not os.path.exists(test_file):
         os.makedirs(test_file)
-
-    print("Dataloader size: ", len(test_loader))
 
     for i, data_dict in enumerate(test_loader):
         print(i, data_dict["imgpath"], sep=" | ")

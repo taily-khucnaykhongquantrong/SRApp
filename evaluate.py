@@ -7,6 +7,7 @@ from utils.util import allowed_file
 from utils.psnr import psnr
 from utils.ssim import calculate_ssim as ssim
 from utils.perceptual_index import perceptual_index
+from utils.fid_score import calculate_fid_given_paths as fid
 from utils.util import drawtext
 
 
@@ -17,6 +18,7 @@ def evaluate(model: str, isGif: bool):
 
     hrList = sorted(glob(HR_DIRECTORY))
     srList = sorted(glob(SR_DIRECTORY))
+    scoredImagesList = []
 
     print(str(datetime.now()))
 
@@ -25,21 +27,27 @@ def evaluate(model: str, isGif: bool):
         fileNameHr = os.path.basename(hr)
 
         if allowed_file(fileNameSr) and allowed_file(fileNameHr):
-            scoreList = []
+            scoreList = {}
 
             print(fileNameSr, fileNameHr, str(datetime.now()), sep=" | ")
 
             perceptualIndex = perceptual_index(sr, hr)
-            scoreList.append(("PI", round(perceptualIndex, 4)))
+            scoreList["PI"] = round(perceptualIndex, 4)
 
             psnrValue = psnr(sr, hr)
-            scoreList.append(("PSNR", round(psnrValue, 4)))
+            scoreList["PSNR"] = round(psnrValue, 4)
 
             ssimValue = ssim(sr, hr)
-            scoreList.append(("SSIM", round(ssimValue, 4)))
+            scoreList["SSIM"] = round(ssimValue, 4)
+
+            scoredImagesList.append(scoreList)
 
             img = drawtext(sr, scoreList)
             img.save(SR_WITH_SCORE_DIRECTORY + fileNameHr)
+
+    fidValue = fid(
+        [HR_DIRECTORY[:-1], SR_DIRECTORY[:-1]], batch_size=50, cuda=False, dims=2048
+    )
 
     if isGif:
         subprocess.call(
@@ -48,9 +56,23 @@ def evaluate(model: str, isGif: bool):
                 "-o",
                 "img/gif/" + model + ".gif",
                 "--fps",
-                "2",
+                "1",
                 SR_WITH_SCORE_DIRECTORY + "*.png",
+            ]
+        )
+        subprocess.call(
+            [
+                "utils/GIF2Video/ffmpeg.exe",
+                "-i",
+                "img/gif/" + model + ".gif",
+                "-c",
+                "vp9",
+                "-crf",
+                "0",
+                "img/gif/" + model + ".webm",
             ]
         )
 
     print(str(datetime.now()))
+
+    return scoredImagesList, fidValue

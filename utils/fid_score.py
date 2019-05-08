@@ -50,7 +50,7 @@ except ImportError:
     def tqdm(x):
         return x
 
-from inception import InceptionV3
+from utils.inception import InceptionV3
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
 parser.add_argument(

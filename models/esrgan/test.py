@@ -1,10 +1,8 @@
 import os
+import logging
+import time
 
 # import sys
-import logging
-
-# import time
-
 # import argparse
 # import numpy as np
 
@@ -50,7 +48,7 @@ def test():
     for test_loader in test_loaders:
         test_set_name = test_loader.dataset.opt["name"]
         logger.info("\nTesting [{:s}]...".format(test_set_name))
-        # test_start_time = time.time()
+        logger.info(time.time())
         # dataset_dir = os.path.join(opt["path"]["results_root"], test_set_name)
 
         # where to save sr img

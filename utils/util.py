@@ -1,7 +1,6 @@
+import os
 import numpy as np
 from PIL import Image, ImageDraw
-
-IMG_EXTENSION = ["jpg", "png", "jpeg"]
 
 
 def modcrop(img_in, scale):
@@ -53,14 +52,19 @@ def drawtext(imgPath: str, scoreList):
     img = Image.open(imgPath)
     drawnImg = ImageDraw.Draw(img)
 
-    for i, (metric_name, score) in enumerate(scoreList):
-        drawnImg.text((10, 10 * i), metric_name + ": " + str(score), fill=(255, 87, 34))
+    for i, (key, score) in enumerate(scoreList.items()):
+        drawnImg.text((10, 10 * i), key + ": " + str(score), fill=(255, 87, 34))
 
     return img
 
 
-def allowed_file(filename):
+def allowed_file(filename, IMG_EXTENSION=["jpg", "png", "jpeg"]):
     """
     Return true if input image extension is in allowed list
     """
     return "." in filename and filename.rsplit(".", 1)[1].lower() in IMG_EXTENSION
+
+
+def mkdir(path):
+    if not os.path.exists(path):
+        os.mkdir(path)

@@ -44,7 +44,7 @@ def test(data_name="img_align_celeba_png_set_1"):
     net_G_low2high = net_G_low2high.eval()
 
     # Where to save sr img
-    test_file = "img/sr/high2low/" + data_name + "/"
+    test_file = "img/sr/high2low/"
 
     if not os.path.exists(test_file):
         os.makedirs(test_file)

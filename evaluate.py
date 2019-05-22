@@ -1,17 +1,16 @@
 from glob import glob
 import os
 from datetime import datetime
-import subprocess
 
 from utils.util import allowed_file
 from utils.psnr import psnr
 from utils.ssim import calculate_ssim as ssim
 from utils.perceptual_index import perceptual_index
 from utils.fid_score import calculate_fid_given_paths as fid
-from utils.util import drawtext
+from utils.util import drawtext, initLogger, genVideo
 
 
-def evaluate(model: str, isGif: bool):
+def evaluate(model: str) -> (list, float):
     HR_DIRECTORY = "img/hr/*"
     SR_DIRECTORY = "img/sr/" + model + "/*"
     SR_WITH_SCORE_DIRECTORY = "img/sr_withscore/" + model + "/"
@@ -19,8 +18,9 @@ def evaluate(model: str, isGif: bool):
     hrList = sorted(glob(HR_DIRECTORY))
     srList = sorted(glob(SR_DIRECTORY))
     scoredImagesList = []
+    logger = initLogger("evaluated_" + model + ".log")
 
-    print(str(datetime.now()))
+    logger.info(datetime.now())
 
     for (sr, hr) in zip(srList, hrList):
         fileNameSr = os.path.basename(sr)
@@ -28,8 +28,6 @@ def evaluate(model: str, isGif: bool):
 
         if allowed_file(fileNameSr) and allowed_file(fileNameHr):
             scoreList = {}
-
-            print(fileNameSr, fileNameHr, str(datetime.now()), sep=" | ")
 
             perceptualIndex = perceptual_index(sr, hr)
             scoreList["PI"] = round(perceptualIndex, 4)
@@ -40,6 +38,17 @@ def evaluate(model: str, isGif: bool):
             ssimValue = ssim(sr, hr)
             scoreList["SSIM"] = round(ssimValue, 4)
 
+            logger.info(
+                "Filename: "
+                + fileNameSr
+                + ", PI: "
+                + str(scoreList["PI"])
+                + ", PSNR: "
+                + str(scoreList["PSNR"])
+                + ", SSIM: "
+                + str(scoreList["SSIM"])
+            )
+
             scoredImagesList.append(scoreList)
 
             img = drawtext(sr, scoreList)
@@ -49,30 +58,8 @@ def evaluate(model: str, isGif: bool):
         [HR_DIRECTORY[:-1], SR_DIRECTORY[:-1]], batch_size=50, cuda=False, dims=2048
     )
 
-    if isGif:
-        subprocess.call(
-            [
-                "utils/Images2GIF/gifski.exe",
-                "-o",
-                "img/gif/" + model + ".gif",
-                "--fps",
-                "1",
-                SR_WITH_SCORE_DIRECTORY + "*.png",
-            ]
-        )
-        subprocess.call(
-            [
-                "utils/GIF2Video/ffmpeg.exe",
-                "-i",
-                "img/gif/" + model + ".gif",
-                "-c",
-                "vp9",
-                "-crf",
-                "0",
-                "img/gif/" + model + ".webm",
-            ]
-        )
-
-    print(str(datetime.now()))
+    genVideo(SR_WITH_SCORE_DIRECTORY, model)
+    logger.info("FID: " + str(fidValue))
+    logger.info(datetime.now())
 
     return scoredImagesList, fidValue

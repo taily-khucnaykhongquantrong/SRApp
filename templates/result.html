@@ -14,8 +14,14 @@
             padding: 40px;
         }
 
+        .row {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
         .col {
-            width: 50%;
+            width: 33%;
         }
 
         .col img {
@@ -26,21 +32,21 @@
 
 <body>
     <div class="container">
-        <div class="col">
-            <h1>Low Resolution</h1>
-            {% for lrFile in lrFiles %}
-            <img src="{{url_for('lr', filename=lrFile)}}" alt="{{lrFile}}">
+        <div class="row center">
+            {% for (scores, FID, modelName), gif in results %}
+            <div class="col">
+                <video autoplay loop src="{{ url_for('getVideo', filePath=gif) }}">
+                </video>
+                <h3>{{ FID }}</h3>
+                <h1>{{ modelName }}</h1>
+            </div>
             {% endfor %}
-        </div>
-
-        <div class="col">
-            <h1>High Resolution x4</h1>
-            {% for hrFile in hrFiles %}
-            <img src="{{url_for('hr', filename=hrFile)}}" alt="{{hrFile}}">
-            {% endfor %}
-            <!-- {% for faceConfidence in faceConfidenceList %}
-            <h4>{{ faceConfidence }}</h4>
-            {% endfor %} -->
+            <div class="col">
+                <video autoplay loop src="{{ url_for('getVideo', filePath='img/gif/hr.webm') }}">
+                </video>
+                <h3></h3>
+                <h1>Ground Truth</h1>
+            </div>
         </div>
     </div>
 </body>

@@ -48,11 +48,10 @@ def test():
     for test_loader in test_loaders:
         test_set_name = test_loader.dataset.opt["name"]
         logger.info("\nTesting [{:s}]...".format(test_set_name))
-        logger.info(time.time())
         # dataset_dir = os.path.join(opt["path"]["results_root"], test_set_name)
 
         # where to save sr img
-        dataset_dir = "img/sr/ESRGAN"
+        dataset_dir = "img/sr/esrgan"
         util.mkdir(dataset_dir)
 
         for data in test_loader:

@@ -16,21 +16,21 @@ from werkzeug.utils import secure_filename
 
 # import face_recognition
 
-import test
+from models.high2low.test import test as high2low
+from models.esrgan.test import test as esrgan
+from evaluate import evaluate
 import utils.util as util
 
-UPLOAD_FOLDER = "img/LR/"
-RESULT_FOLDER = "img/sr/"
+LR_FOLDER = "img/lr/"
+HR_FOLDER = "img/hr/"
+SR_ESRGAN_FOLDER = "img/sr/esrgan/"
+SR_HIGH2LOW_FOLDER = "img/sr/high2low/"
 GIF_FOLDER = "img/gif/*"
 SECRET_KEY = b'_5#y2L"F4Q8z\n\xec]/'
 
 app = Flask(__name__)
 # Set the secret key to some random bytes. Keep this really secret!
 app.secret_key = SECRET_KEY
-
-util.mkdir(UPLOAD_FOLDER)
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-app.config["RESULT_FOLDER"] = RESULT_FOLDER
 
 
 @app.route("/")
@@ -40,19 +40,21 @@ def index():
     return render_template("index.html", gifImages=gifImages)
 
 
-@app.route("/video/<path:filePath>")
-def getVideo(filePath):
-    return send_from_directory(
-        filePath.split(os.path.basename(filePath))[0], os.path.basename(filePath)
-    )
-
-
 @app.route("/result", methods=["POST", "GET"])
 def result():
     if request.method == "POST":
         # Get the name of the uploaded files
         uploaded_files = request.files.getlist("file[]")
+        isEvaluate = request.form.getlist("evaluate")
+        isNeedHR = request.form.getlist("needHR")
+        resultSlides = []
         filenames = []
+
+        util.cleanDir(LR_FOLDER)
+        util.cleanDir(SR_ESRGAN_FOLDER)
+        util.cleanDir(SR_HIGH2LOW_FOLDER)
+        if isNeedHR:
+            util.cleanDir(HR_FOLDER)
 
         for file in uploaded_files:
 
@@ -62,17 +64,38 @@ def result():
                 filename = secure_filename(file.filename)
                 # Move the file form the temporal folder to the upload
                 # folder we setup
-                file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+                path = HR_FOLDER if isNeedHR else LR_FOLDER
+                file.save(os.path.join(path, filename))
                 # Save the filename into a list, we'll use it later
                 filenames.append(filename)
                 # Redirect the user to the uploaded_file route, which
                 # will basicaly show on the browser the uploaded file
-        # Load an html page with a link to each uploaded file
 
-        test.main("./options/test/test_ESRGAN.json")
+        if isNeedHR:
+            util.downscale(LR_FOLDER, HR_FOLDER + "*", 4)
 
-        lrFiles = [file for file in os.listdir(UPLOAD_FOLDER)]
-        hrFiles = [file for file in os.listdir(RESULT_FOLDER)]
+        esrgan()
+        high2low()
+
+        if isEvaluate:
+            esrganScores, esrganFID = evaluate("esrgan")
+            high2lowScores, high2lowFID = evaluate("high2low")
+        else:
+            util.genVideo(SR_ESRGAN_FOLDER, 'esrgan')
+            util.genVideo(SR_HIGH2LOW_FOLDER, 'high2low')
+            esrganScores, esrganFID = (["N/A"], "N/A")
+            high2lowScores, high2lowFID = (["N/A"], "N/A")
+        util.genVideo('img/hr/', 'hr')
+
+        resultSlides = [
+            path for path in sorted(glob(GIF_FOLDER)) if path.endswith(".webm")
+        ]
+        scoresList = [
+            (esrganScores, esrganFID, "ESRGAN"),
+            (high2lowScores, high2lowFID, "High2Low"),
+        ]
+
+        return render_template("result.html", results=zip(scoresList, resultSlides))
 
         # lrImages = []
         # lrImagesEncoding = []
@@ -103,17 +126,21 @@ def result():
 
         # i = i + 1
 
-        return render_template("result.html", lrFiles=lrFiles, hrFiles=hrFiles)
+
+@app.route("/video/<path:filePath>")
+def getVideo(filePath):
+    fileName = os.path.basename(filePath)
+    fileDirectory = filePath.split(fileName)[0]
+
+    return send_from_directory(fileDirectory, fileName)
 
 
-@app.route("/hr/<path:filename>")
-def lr(filename):
-    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+@app.route("/img/<path:filePath>")
+def getImage(filePath):
+    fileName = os.path.basename(filePath)
+    fileDirectory = filePath.split(fileName)[0]
 
-
-@app.route("/sr/<path:filename>")
-def hr(filename):
-    return send_from_directory(app.config["RESULT_FOLDER"], filename)
+    return send_from_directory(fileDirectory, fileName)
 
 
 """

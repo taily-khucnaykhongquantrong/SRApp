@@ -43,11 +43,11 @@ class faces_super(data.Dataset):
         return data
 
 
-def get_loader(dataname, bs=1):
+def get_loader(dataname, bs=1, dataPath="img/lr/*"):
     transform = transforms.Compose(
         [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
     )
-    dataset = faces_super(dataname, transform)
+    dataset = faces_super(dataname, transform, dataPath)
     data_loader = DataLoader(
         dataset=dataset, batch_size=bs, shuffle=False, num_workers=2, pin_memory=True
     )

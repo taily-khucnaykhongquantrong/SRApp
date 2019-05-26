@@ -17,8 +17,6 @@ def perceptual_index(srPath: str, hrPath: str):
     sr = matlab.uint8(sr.tolist())
     cropped_hr = matlab.uint8(cropped_hr.tolist())
 
-    print(sr.size, cropped_hr.size, sep=' | ')
-
     score = eng.evaluate(sr, cropped_hr)
 
     eng.quit()

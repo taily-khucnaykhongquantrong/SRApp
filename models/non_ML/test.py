@@ -1,4 +1,4 @@
-import os
+from os.path import basename, join
 from glob import glob
 from PIL import Image
 
@@ -9,7 +9,7 @@ ratio = 4
 
 
 def upscale(ratio, resample, interpName):
-    sr_path = "img/sr/" + interpName + "/"
+    sr_path = "img/sr/" + interpName
     lr_list = sorted(glob("img/lr/*"))
 
     cleanDir(sr_path)
@@ -18,7 +18,7 @@ def upscale(ratio, resample, interpName):
         # Read image
         img = Image.open(value)
         dst = img.resize((tuple([int(x * ratio) for x in img.size])), resample)
-        dst.save(sr_path + os.path.basename(value))
+        dst.save(join(sr_path, basename(value)))
 
 
 def bicubic():

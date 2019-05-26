@@ -16,8 +16,7 @@ from werkzeug.utils import secure_filename
 
 # import face_recognition
 
-from models.high2low.test import test as high2low
-from models.esrgan.test import test as esrgan
+from test import test
 from evaluate import evaluate
 import utils.util as util
 
@@ -74,12 +73,14 @@ def result():
         if isNeedHR:
             util.downscale(LR_FOLDER, HR_FOLDER + "*", 4)
 
-        esrgan()
-        high2low()
+        test()
 
         if isEvaluate:
             esrganScores, esrganFID = evaluate("esrgan")
             high2lowScores, high2lowFID = evaluate("high2low")
+            bicubicScores, bicubicFID = evaluate("bicubic")
+            nearstScores, nearestFID = evaluate("nearest")
+            bilinearScores, bilinearFID = evaluate("bilinear")
         else:
             util.genVideo(SR_ESRGAN_FOLDER, 'esrgan')
             util.genVideo(SR_HIGH2LOW_FOLDER, 'high2low')
@@ -93,6 +94,9 @@ def result():
         scoresList = [
             (esrganScores, esrganFID, "ESRGAN"),
             (high2lowScores, high2lowFID, "High2Low"),
+            (bicubicScores, bicubicFID, "Bicubic"),
+            (nearstScores, nearestFID, "Nearest"),
+            (bilinearScores, bilinearFID, "Bilinear")
         ]
 
         return render_template("result.html", results=zip(scoresList, resultSlides))

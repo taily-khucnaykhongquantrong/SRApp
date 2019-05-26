@@ -2,15 +2,19 @@ import os
 from glob import glob
 from PIL import Image
 
+from utils.util import cleanDir
+
 # Scale factor
 ratio = 4
 
 
-def upscale(ratio, resample):
-    sr_path = "img/sr/"
-    hr_list = sorted(glob("img/hr/*"))
+def upscale(ratio, resample, interpName):
+    sr_path = "img/sr/" + interpName + "/"
+    lr_list = sorted(glob("img/lr/*"))
 
-    for index, value in enumerate(hr_list):
+    cleanDir(sr_path)
+
+    for index, value in enumerate(lr_list):
         # Read image
         img = Image.open(value)
         dst = img.resize((tuple([int(x * ratio) for x in img.size])), resample)
@@ -18,12 +22,12 @@ def upscale(ratio, resample):
 
 
 def bicubic():
-    upscale(ratio, Image.BICUBIC)
+    upscale(ratio, Image.BICUBIC, 'bicubic')
 
 
 def nearest():
-    upscale(ratio, Image.NEAREST)
+    upscale(ratio, Image.NEAREST, 'nearest')
 
 
 def bilinear():
-    upscale(ratio, Image.BILINEAR)
+    upscale(ratio, Image.BILINEAR, 'bilinear')

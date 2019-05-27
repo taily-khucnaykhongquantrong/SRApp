@@ -19,8 +19,9 @@ def evaluate(model: str) -> (list, float):
     srList = sorted(glob(SR_DIRECTORY))
     scoredImagesList = []
     logger = initLogger("evaluated_" + model + ".log")
-
-    logger.info(datetime.now())
+    piSum = 0
+    psnrSum = 0
+    ssimSum = 0
 
     for (sr, hr) in zip(srList, hrList):
         fileNameSr = os.path.basename(sr)
@@ -49,17 +50,27 @@ def evaluate(model: str) -> (list, float):
                 + str(scoreList["SSIM"])
             )
 
+            piSum += scoreList["PI"]
+	    psnrSum += scoreList["PSNR"]
+	    ssimSum += scoreList["SSIM"]
+
             scoredImagesList.append(scoreList)
 
             img = drawtext(sr, scoreList)
             img.save(SR_WITH_SCORE_DIRECTORY + fileNameHr)
 
     fidValue = fid(
-        [HR_DIRECTORY[:-1], SR_DIRECTORY[:-1]], batch_size=50, cuda=False, dims=2048
+        [HR_DIRECTORY[:-1], SR_DIRECTORY[:-1]], batch_size=30, cuda=False, dims=2048
     )
+    totalImage = len(srList)
+    averagePI = piSum / totalImage
+    averagePSNR = psnrSum / totalImage
+    averageSSIM = ssimSum / totalImage
 
     genVideo(SR_WITH_SCORE_DIRECTORY, model)
     logger.info("FID: " + str(fidValue))
-    logger.info(datetime.now())
+    logger.info("Average PI: " + str(averagePI))
+    logger.info("Average PSNR: " + str(averagePSNR))
+    logger.info("Average SSIM: " + str(averageSSIM))
 
     return scoredImagesList, fidValue

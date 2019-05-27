@@ -12,7 +12,7 @@ def initLogger(fileName):
     logger = logging.getLogger("SRApp")
     logger.setLevel(logging.INFO)
 
-    formatter = logging.Formatter("%(message)s")
+    formatter = logging.Formatter("%(asctime)s - %(message)s")
 
     fh = logging.FileHandler(fileName, "w")
     fh.setFormatter(formatter)
